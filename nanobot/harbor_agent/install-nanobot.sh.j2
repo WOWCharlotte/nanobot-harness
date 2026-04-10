@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+# Install nanobot from PyPI
+pip install nanobot-ai
+
+# Create config directory
+mkdir -p /installed-agent
+
+# Generate default config if not provided via environment
+{% if config_json %}
+echo '{{ config_json }}' > /installed-agent/nanobot_config.json
+{% else %}
+# Minimal config pointing to the task workspace
+cat > /installed-agent/nanobot_config.json << 'CONFIG_EOF'
+{
+  "agents": {
+    "defaults": {
+      "model": "{{ model | default('anthropic/claude-sonnet-4-7') }}",
+      "max_tool_iterations": 100,
+      "max_tokens": 4096
+    }
+  },
+  "channels": {}
+}
+CONFIG_EOF
+{% endif %}
+
+echo "Nanobot installed successfully"
